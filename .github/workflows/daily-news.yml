@@ -1,1 +1,32 @@
 
+name: 每日科技與光電新聞報告
+
+on:
+  schedule:
+    - cron: '0 1 * * *'     # 每天台灣時間早上 9:00（UTC+8）
+  workflow_dispatch:        # 允許手動觸發
+
+jobs:
+  send-daily-news:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout 程式碼
+        uses: actions/checkout@v4
+
+      - name: 設定 Python 環境
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 安裝依賴套件
+        run: |
+          pip install -r requirements.txt
+
+      - name: 執行新聞抓取與寄信
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
+          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+        run: |
+          python daily_news.py
